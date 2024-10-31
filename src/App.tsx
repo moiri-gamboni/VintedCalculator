@@ -11,6 +11,24 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+type SeasonType = "summer" | "winter" | "spring" | "fall" | "allYear";
+
+interface SeasonalData {
+  peak: number[];
+  shoulder: number[];
+  low: number[];
+}
+
+type SeasonalDemand = {
+  [key in SeasonType]: SeasonalData;
+}
+
+interface DataPoint {
+  price: number;
+  saleProb: number;
+  expectedValue: number;
+}
+
 const VintedCalculator = () => {
   // Basic settings
   const [maxStorage, setMaxStorage] = useState(50);
@@ -18,7 +36,7 @@ const VintedCalculator = () => {
   const [listedPrice, setListedPrice] = useState(40);
   const [daysListed, setDaysListed] = useState(7);
   const [receivedOffer, setReceivedOffer] = useState(30);
-  const [itemType, setItemType] = useState("summer");
+  const [itemType, setItemType] = useState<SeasonType>("summer");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [currentMonth] = useState(new Date().getMonth() + 1);
 
@@ -33,7 +51,7 @@ const VintedCalculator = () => {
 
   // Rest of the existing code remains the same until getSeasonalMultiplier
   // Seasonal demand multipliers
-  const seasonalDemand = {
+  const seasonalDemand: SeasonalDemand = {
     summer: {
       peak: [6, 7, 8], // June, July, August
       shoulder: [4, 5, 9], // April, May, September
@@ -60,7 +78,7 @@ const VintedCalculator = () => {
       low: [],
     },
   };
-  const getSeasonalMultiplier = () => {
+  const getSeasonalMultiplier = (): number => {
     const seasons = seasonalDemand[itemType];
     if (seasons.peak.includes(currentMonth)) return peakSeasonMultiplier;
     if (seasons.shoulder.includes(currentMonth)) return 1.0;
@@ -106,8 +124,8 @@ const VintedCalculator = () => {
   };
 
   // Add this probability data generation function
-  const generateProbabilityData = (originalPrice) => {
-    const data = [];
+  const generateProbabilityData = (originalPrice: number) => {
+    const data: DataPoint[] = [];
     const minPrice = originalPrice * 0.4;
     const seasonalMultiplier = getSeasonalMultiplier();
 
@@ -183,7 +201,7 @@ const VintedCalculator = () => {
               Item Type
               <select
                 value={itemType}
-                onChange={(e) => setItemType(e.target.value)}
+                onChange={(e) => setItemType(e.target.value as SeasonType)}
                 className="mt-1 block w-full rounded border border-gray-300 p-2 bg-white text-black"
               >
                 <option value="summer">Summer Clothing</option>
